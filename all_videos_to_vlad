@@ -1,0 +1,3 @@
+vocabulary = load('64_SIT_vocab.mat');
+vocabulary = vocabulary.v;
+
