@@ -3,7 +3,7 @@ function [] = split_video(in_path, out_path, segment_length)
 % split the video into several segments of length segment_length (seconds). 
 % The segmented videos % are labeled accordingly and placed at out_path
 
-% to get FFMPEG to work, load the following instead : 
+% to get FFMPEG to work, start matlab in the followin way instead : 
 % LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 matlab
 
 split_system_call = ['ffmpeg -i',' ',in_path,' -map 0 -vcodec copy -loglevel quiet'...
