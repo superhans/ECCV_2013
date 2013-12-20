@@ -1,0 +1,17 @@
+INPUT_PATH = '../PROCESSED_DATA/';
+d = dir(INPUT_PATH);
+isub = [d(:).isdir];
+main_folds = {d(isub).name}';
+main_folds(ismember(main_folds,{'.','..'})) = [];
+
+for i=1:size(main_folds,1)
+	% now list all of the folders within this folder
+	d1 = dir(MAIN_FOLDER_PATH);
+	isub = [d1(:).isdir];
+	sub_folder_names = {d1(isub).name}';
+	sub_folder_names(ismember(sub_folder_names,{'.','..'})) = [];
+
+	for j=1:size(sub_folder_names,1)
+
+	end
+end

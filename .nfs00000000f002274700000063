@@ -1,0 +1,34 @@
+INPUT_PATH = '../PROCESSED_DATA/';
+d = dir(INPUT_PATH);
+isub = [d(:).isdir];
+main_folds = {d(isub).name}';
+main_folds(ismember(main_folds,{'.','..'})) = [];
+
+for i=1:size(main_folds,1)
+	MAIN_FOLDER_PATH = strcat(INPUT_PATH,main_folds{i},'/')
+	% now list all of the folders within this folder
+	d1 = dir(MAIN_FOLDER_PATH);
+	isub = [d1(:).isdir];
+	sub_folder_names = {d1(isub).name}';
+	sub_folder_names(ismember(sub_folder_names,{'.','..'})) = [];
+
+	for j=1:size(sub_folder_names,1)
+		SUB_FOLDER_PATH = strcat(MAIN_FOLDER_PATH,sub_folder_names{j},'/');
+		d = dir(strcat(SUB_FOLDER_PATH));
+		isub = [d(:).isdir];
+		segment_names = {d(isub).name}';
+		segment_names(ismember(segment_names,{'.','..'})) = [];
+
+		for k=1:size(segment_names,1)
+			RAND_PROJ_PATH = strcat(SUB_FOLDER_PATH,segment_names{k},'/rand_proj_vlad/');
+			VLAD_PATH = strcat(SUB_FOLDER_PATH,segment_names{k},'/vlads/')
+
+			d = dir(strcat(VLAD_PATH,'/','*.mat'));
+			isub = ~[d(:).isdir];
+			vlad_names = {d(isub).name}';
+			vlad_names(ismember(vlad_names,{'.','..'})) = []
+			% for l=1
+		end
+
+	end
+end

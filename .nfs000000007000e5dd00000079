@@ -1,0 +1,74 @@
+function [] = vlav()
+
+	vlad_vocabulary = load('64_VLAD_vocab.mat');
+	vlad_vocabulary = double(vlad_vocabulary.centers);
+	vlad_kdtree = vl_kdtreebuild(vlad_vocabulary);
+	size(vlad_vocabulary)
+
+	INPUT_PATH = '../PROCESSED_DATA/';
+	d = dir(INPUT_PATH);
+	isub = [d(:).isdir];
+	main_folds = {d(isub).name}';
+	main_folds(ismember(main_folds,{'.','..'})) = [];
+
+	for i=1:size(main_folds,1)
+		MAIN_FOLDER_PATH = strcat(INPUT_PATH,main_folds{i},'/')
+		% now list all of the folders within this folder
+		d1 = dir(MAIN_FOLDER_PATH);
+		isub = [d1(:).isdir];
+		sub_folder_names = {d1(isub).name}';
+		sub_folder_names(ismember(sub_folder_names,{'.','..'})) = [];
+
+		for j=1:size(sub_folder_names,1)
+			SUB_FOLDER_PATH = strcat(MAIN_FOLDER_PATH,sub_folder_names{j},'/');
+			d = dir(strcat(SUB_FOLDER_PATH));
+			isub = [d(:).isdir];
+			segment_names = {d(isub).name}';
+			segment_names(ismember(segment_names,{'.','..'})) = [];
+
+			for k=1:size(segment_names,1)
+				RAND_PROJ_PATH = strcat(SUB_FOLDER_PATH,segment_names{k},'/rand_proj_vlad/');
+				VLAD_PATH = strcat(SUB_FOLDER_PATH,segment_names{k},'/vlads/')
+
+				d = dir(strcat(VLAD_PATH,'/','*.mat'));
+				isub = ~[d(:).isdir];
+				vlad_names = {d(isub).name}';
+				vlad_names(ismember(vlad_names,{'.','..'})) = [];
+				avg_vlad = zeros(8192,1);
+				rand_proj_vlads = zeros(128,size(vlad_names,1));
+
+				for l=1:size(vlad_names,1)
+					file_vlad_path = strcat(VLAD_PATH,sprintf('%05d',l),'_vlad.mat');
+					v = load(file_vlad_path);
+					v = v.vlad;
+					avg_vlad = avg_vlad+v;
+
+					file_rand_proj_path = strcat(RAND_PROJ_PATH,sprintf('%05d',l),'_vladproj.mat');
+					rpv = load(file_rand_proj_path);
+					rpv = rpv.projected_vlad;
+					rand_proj_vlads(:,l) = rpv;
+				end
+				vlav = vlav_from_vlads(rand_proj_vlads,vlad_vocabulary,vlad_kdtree);
+				%vlav'
+				avg_vlad = avg_vlad./size(vlad_names,1);
+				%avg_vlad'
+			end
+
+		end
+	end
+
+end
+
+function [ vlav ] = vlav_from_vlads(descrs2,vocabulary,kdtree)
+
+dataEncode = double(descrs2)
+
+
+nn = double(vl_kdtreequery(kdtree, vocabulary, dataEncode));
+numClusters = size(vocabulary,2);
+numDataToBeEncoded = size(descrs2,2);
+assignments = double(zeros(numClusters,numDataToBeEncoded));
+assignments(sub2ind(size(assignments), nn, 1:length(nn))) = 1;
+vlav = vl_vlad(double(dataEncode),double(vocabulary),double(assignments),'SquareRoot');
+
+end
